@@ -1,0 +1,32 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      docker: 20
+    commands:
+      - echo Installing dependencies...
+      - apt-get update -y
+      - apt-get install -y docker.io
+      - echo Docker installed: $(docker --version)
+  pre_build:
+    commands:
+      - echo Pre-Build: Validating Dockerfile...
+      - docker version
+      - echo $(pwd)
+      - ls -la
+  build:
+    commands:
+      - echo Building Docker image from Dockerfile...
+      - docker build -t my-app-image .
+  post_build:
+    commands:
+      - echo Post-Build: Tagging and saving Docker image...
+      - docker save my-app-image -o my-app-image.tar
+      - echo Packaging image for deployment...
+      - zip docker-package.zip my-app-image.tar docker-compose.yml
+      - echo Build and packaging complete.
+artifacts:
+  files:
+    - docker-package.zip
+
